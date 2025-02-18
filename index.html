@@ -17,9 +17,9 @@
             }
 
             try {
-                // Use Geocodio API to get district data (Replace YOUR_API_KEY with your actual key)
-                let response = await fetch(`https://api.geocod.io/v1.7/geocode?q=${zip}&fields=cd&api_key=YOUR_API_KEY`);
-                
+                // Use CORS Anywhere Proxy to bypass CORS issues
+                let response = await fetch(`https://cors-anywhere.herokuapp.com/https://api.geocod.io/v1.7/geocode?q=${zip}&fields=cd&api_key=b373eed4ea9966e2bfee732f4fa433bfe62397a`);
+
                 // Check if response is OK
                 if (!response.ok) {
                     throw new Error(`Error fetching data: ${response.statusText}`);
