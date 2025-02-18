@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Competitive Districts</title>
+    <script>
+        async function getDistrictByZip() {
+            let zip = document.getElementById("zip").value;
+            let resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = "Checking...";
+
+            // Use Geocodio API to get district data (Replace YOUR_API_KEY)
+            let response = await fetch(`https://api.geocod.io/v1.7/geocode?q=${zip}&fields=cd&api_key=YOUR_API_KEY`);
+            let data = await response.json();
+
+            if (!data.results.length) {
+                resultDiv.innerHTML = "Invalid ZIP code.";
+                return;
+            }
+
+            let districtInfo = data.results[0].fields.congressional_districts[0];
+            let state = districtInfo.state;
+            let district = districtInfo.district;
+            let fullDistrict = `${state} ${district}`;
+
+            // Example data: District margins and current representatives/senators
+            let closeRaces = {
+                "AZ 1": { margin: 3.8, officeholder: "Rep. Tom O'Halleran (D)" },
+                "CA 13": { margin: 0.09, officeholder: "Rep. Adam Gray (D)" },
+                "CA 45": { margin: 0.21, officeholder: "Rep. Michelle Steel (R)" },
+                "PA 7": { margin: 1.01, officeholder: "Rep. Susan Wild (D)" },
+                "PA 10": { margin: 1.26, officeholder: "Rep. Scott Perry (R)" },
+                "NY 3": { margin: 3.58, officeholder: "Rep. Robert Zimmerman (D)" },
+                "TX 34": { margin: 2.58, officeholder: "Rep. Vicente González (D)" },
+                "VA 2": { margin: 3.85, officeholder: "Rep. Elaine Luria (D)" },
+                "WI 3": { margin: 2.73, officeholder: "Rep. Rebecca Kleefisch (R)" },
+                "Senate AZ": { margin: 3.5, officeholder: "Sen. Kyrsten Sinema (I)" },
+                "Senate CA": { margin: 5.2, officeholder: "Sen. Dianne Feinstein (D)" }
+            };
+
+            let senateRaces = {
+                "AZ": { margin: 3.5, officeholder: "Sen. Kyrsten Sinema (I)" },
+                "CA": { margin: 5.2, officeholder: "Sen. Dianne Feinstein (D)" }
+            };
+
+            if (closeRaces[fullDistrict]) {
+                resultDiv.innerHTML = `✅ Your district (${fullDistrict}) was competitive with a margin of ${closeRaces[fullDistrict].margin}%. Current officeholder: ${closeRaces[fullDistrict].officeholder}`;
+            } else if (senateRaces[state]) {
+                resultDiv.innerHTML = `✅ Your Senate race in ${state} was competitive with a margin of ${senateRaces[state].margin}%. Current officeholder: ${senateRaces[state].officeholder}`;
+            } else {
+                // Find the closest competitive district (Example: picking the first one for now)
+                let closestDistrict = Object.keys(closeRaces)[0];  
+                resultDiv.innerHTML = `❌ Your district (${fullDistrict}) was NOT competitive. Consider supporting ${closestDistrict}, which had a close race.`;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h2>Find Competitive House & Senate Races</h2>
+    <p>Enter your ZIP code to check if your district was competitive:</p>
+    <input type="text" id="zip" placeholder="Enter ZIP Code">
+    <button onclick="getDistrictByZip()">Check</button>
+    <p id="result"></p>
+</body>
+</html>
